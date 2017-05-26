@@ -6,8 +6,10 @@ namespace LUnity
     /// <summary>
     /// Clase to hold a single L-System Module
     /// </summary>
-    public class Module : IEnumerable, ICloneable
+    public partial class Module : IEnumerable, ICloneable
     {
+        public static Module Empty { get { return new Module("Empty", new float[] { float.NaN }); } }
+
         #region Fields
         public string Name { get; private set; }
         public float[] Parameters;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace LUnity
 {
@@ -10,7 +11,6 @@ namespace LUnity
     {
         #region Fields
         public List<List<Production>> _productionSet = new List<List<Production>>();
-        private Random rand = new Random();
         #endregion Fields
 
         #region Constructors
@@ -106,7 +106,7 @@ namespace LUnity
                                                         int generation)
         {
             List<Module> successor = null;
-            float rnd = rand.NextFloat();
+            float rnd = UnityEngine.Random.value;
             foreach (Production p in lP)
             {
                 if (rnd <= p.Probability)
