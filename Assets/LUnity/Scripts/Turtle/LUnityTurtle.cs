@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using LUnityGraph;
+using Vectrosity;
 
 namespace LUnity
 {
@@ -44,17 +45,21 @@ namespace LUnity
         private Stack<LUnityTurtleStackData> _turtleDataStack = new Stack<LUnityTurtleStackData>();
 
         private bool _generateGraph = true;
+        public bool DrawLines = true;
+
+        private VectorLine _currentLine = null;
+
         #endregion Fields
 
-        #region Constructors
+        #region UnityMethods
         /// <summary>
         /// Constructor
         /// </summary>
-        public LUnityTurtle()
+        void Awake()
         {
             InitialiseCmdInterpreter();
         }
-        #endregion Constructors
+        #endregion UnityMethods
 
         #region Methods
         /// <summary>
@@ -144,7 +149,7 @@ namespace LUnity
         public void Forward(float[] parameters)
         {
             transform.Translate(Vector3.forward * parameters[0]);
-
+            
             if (IsPenDown)
             {
                 StampPoint(null);
@@ -195,7 +200,7 @@ namespace LUnity
         /// <param name="parameters">First index specifies angle in degrees</param>
         public void YawLeft(float[] parameters)
         {
-            transform.Rotate(Vector3.up, parameters[0]);
+            transform.Rotate(Vector3.up, -parameters[0]);
         }
 
         /// <summary>
@@ -204,7 +209,7 @@ namespace LUnity
         /// <param name="parameters">First index specifies angle in degrees</param>
         public void YawRight(float[] parameters)
         {
-            transform.Rotate(Vector3.up, -parameters[0]);
+            transform.Rotate(Vector3.up, parameters[0]);
         }
 
         public void RollLeft(float[] parameters)
@@ -248,7 +253,7 @@ namespace LUnity
         /// <param name="parameters">First index specifies heading in degrees</param>
         public void SetHeading(float[] parameters)
         {
-            transform.rotation = Quaternion.Euler(parameters[0], parameters[1], parameters[2]);
+            transform.localRotation = Quaternion.Euler(parameters[0], parameters[1], parameters[2]);
         }
 
         /// <summary>
@@ -258,6 +263,10 @@ namespace LUnity
         public void PenUp(float[] parameters)
         {
             IsPenDown = false;
+            if (DrawLines)
+            {
+                _currentLine = null;
+            }
         }
 
         /// <summary>
@@ -289,7 +298,7 @@ namespace LUnity
         /// <param name="parameters">Not used</param>
         public void PushStack(float[] parameters)
         {
-            _turtleDataStack.Push(new LUnityTurtleStackData(transform.position, transform.rotation, _previousVertex, _currentVertex));
+            _turtleDataStack.Push(new LUnityTurtleStackData(transform.position, transform.localRotation, _previousVertex, _currentVertex));
         }
 
         /// <summary>
@@ -300,7 +309,11 @@ namespace LUnity
         {
             LUnityTurtleStackData tSD = _turtleDataStack.Pop();
             transform.position = tSD.Position;
-            transform.rotation = tSD.Heading;
+            transform.localRotation = tSD.Heading;
+            if (DrawLines)
+            {
+                _currentLine = null;
+            }
             _previousVertex = tSD.PreviousVertex;
             _currentVertex = tSD.CurrentVertex;
         }
@@ -313,6 +326,14 @@ namespace LUnity
             if (IsPenDown && _previousVertex != null && _currentVertex != null)
             {
                 _outputGraph.AddDirectedEdge(_previousVertex, _currentVertex);
+                if (DrawLines && _currentLine != null && _currentLine.points3.Count < 4096)
+                {
+                    _currentLine.points3.Add(_currentVertex.Data);
+                }
+                else
+                {
+                    _currentLine = VectorLine.SetLine3D(Color.red, _previousVertex.Data, _currentVertex.Data);
+                }
             }
         }
         #endregion Methods

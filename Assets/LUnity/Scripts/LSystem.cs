@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace LUnity
 {
-    public abstract class LSystem<T>
+    public abstract class LSystem<T> : MonoBehaviour
     {
         #region Fields
         protected ProductionSet _pSet = new ProductionSet();
@@ -14,14 +15,7 @@ namespace LUnity
             set { _axiom = value; }
         }
         #endregion Fields
-
-        #region Constructors
-        /// <summary>
-        /// Default Constructor
-        /// </summary>
-        public LSystem() { }
-        #endregion Constructors
-
+        
         #region Methods
         /// <summary>
         /// Sets the Axiom for the L-System
